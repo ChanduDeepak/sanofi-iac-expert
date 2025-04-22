@@ -1,0 +1,55 @@
+name: Terraform Deploy (Dev/Prod)
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Target environment'
+        required: true
+        default: 'dev'
+        type: choice
+        options:
+          - dev
+          - prod
+      region:
+        description: 'Target region'
+        required: true
+        default: 'eastus'
+        type: choice
+        options:
+          - eastus
+          - westus2
+
+jobs:
+  terraform:
+    name: Deploy to ${{ github.event.inputs.environment }} in ${{ github.event.inputs.region }}
+    runs-on: ubuntu-latest
+
+    env:
+      ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
+      ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
+      ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
+      ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
+
+    defaults:
+      run:
+        shell: bash
+        working-directory: app/stacks/1_rg/region-${{ github.event.inputs.region }}/env-${{ github.event.inputs.environment }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.5.7
+
+      - name: Terraform Init
+        run: terraform init
+
+      - name: Terraform Validate
+        run: terraform validate
+
+      - name: Terraform Plan
+        run: terraform plan -var-file="${{ github.event.inputs.environment }}.tfvars"
