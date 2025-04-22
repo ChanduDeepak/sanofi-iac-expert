@@ -1,27 +1,19 @@
-name: Terraform Deploy
+name: Terraform Deploy (Dev/Prod)
 
 on:
   workflow_dispatch:
     inputs:
       stack:
-        description: 'Which stack to deploy (e.g., 1_rg, 2_network, 3_storage, all)'
+        description: 'Stack to deploy'
         required: true
-        default: 'all'
+        default: '1_rg'
         type: choice
         options:
           - 1_rg
           - 2_network
           - 3_storage
+          - 4_compute
           - all
-      action:
-        description: 'Terraform Action'
-        required: true
-        default: 'plan'
-        type: choice
-        options:
-          - plan
-          - apply
-          - plan_and_apply
       environment:
         description: 'Target environment'
         required: true
@@ -38,16 +30,22 @@ on:
         options:
           - eastus2
           - westus2
+      action:
+        description: 'Terraform action'
+        required: true
+        default: 'plan'
+        type: choice
+        options:
+          - plan
+          - apply
 
 jobs:
   terraform:
-    name: Deploy ${{ github.event.inputs.stack }} to ${{ github.event.inputs.environment }} in ${{ github.event.inputs.region }}
+    name: Run Terraform
     runs-on: ubuntu-latest
-
     defaults:
       run:
         shell: bash
-
     env:
       ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
       ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
@@ -58,34 +56,37 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Set up Terraform
-        uses: hashicorp/setup-terraform@v2
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
         with:
           terraform_version: 1.5.7
 
-      - name: Run Terraform Steps
+      - name: Set Variables
         run: |
-          set -e
-          echo "STACK: ${{ github.event.inputs.stack }}"
-          echo "ENV: ${{ github.event.inputs.environment }}"
-          echo "REGION: ${{ github.event.inputs.region }}"
-          echo "ACTION: ${{ github.event.inputs.action }}"
+          echo "STACK=${{ github.event.inputs.stack }}" >> $GITHUB_ENV
+          echo "ENVIRONMENT=${{ github.event.inputs.environment }}" >> $GITHUB_ENV
+          echo "REGION=${{ github.event.inputs.region }}" >> $GITHUB_ENV
+          echo "ACTION=${{ github.event.inputs.action }}" >> $GITHUB_ENV
 
-          # Convert values to lowercase
-          STACK="${{ github.event.inputs.stack }}"
-          ENV="${{ github.event.inputs.environment }}"
-          REGION="${{ github.event.inputs.region }}"
-          ACTION="${{ github.event.inputs.action }}"
+      - name: Run Terraform for selected stack(s)
+        run: |
+          run_tf () {
+            STACK_PATH="app/stacks/$1"
+            TFVARS_PATH="$STACK_PATH/tfvars/$REGION/$ENVIRONMENT.tfvars"
 
-          run_terraform() {
-            echo "==> Running in app/stacks/$1"
-            cd app/stacks/$1
-
-            terraform init -backend-config="../../providers/backend-$REGION-$ENV.tfvars"
-
+            echo "🚀 Running Terraform $ACTION on $1 with vars: $TFVARS_PATH"
+            cd $STACK_PATH
+            terraform init -input=false
             terraform validate
+            terraform $ACTION -var-file="$TFVARS_PATH"
+            cd -
+          }
 
-            terraform plan -var-file=tfvars/$REGION/$ENV.tfvars
-
-            if [[ "$ACTION" == "apply" || "$ACTION" == "plan_and_apply" ]]; then
-              terraform apply -auto-approve -var-file=tfvars/$REGION/$ENV.tfvars
+          if [ "$STACK" = "all" ]; then
+            run_tf 1_rg
+            run_tf 2_network
+            run_tf 3_storage
+            run_tf 4_compute
+          else
+            run_tf $STACK
+          fi
