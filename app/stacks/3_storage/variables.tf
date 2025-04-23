@@ -18,10 +18,10 @@ variable "account_tier" {
   type        = string
 }
 
-variable "account_replication_type" {
-  description = "The type of replication to use for this storage account (LRS, GRS, etc)"
-  type        = string
-}
+# variable "account_replication_type" {
+#   description = "The type of replication to use for this storage account (LRS, GRS, etc)"
+#   type        = string
+# }
 
 variable "tags" {
   description = "A map of tags to assign to the resource"
