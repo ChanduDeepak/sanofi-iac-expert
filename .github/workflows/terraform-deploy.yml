@@ -28,6 +28,7 @@ on:
           - 1_rg
           - 2_network
           - 3_storage
+          - 4_compute
           - all
       action:
         description: 'Terraform action to perform'
@@ -47,11 +48,10 @@ jobs:
       REGION_NAME: ${{ github.event.inputs.region }}
       STACK_NAME: ${{ github.event.inputs.stack }}
       TF_ACTION: ${{ github.event.inputs.action }}
-      ARM_CLIENT_ID: ${{ secrets[format('ARM_CLIENT_ID_{0}', github.event.inputs.environment)] }}
-      ARM_CLIENT_SECRET: ${{ secrets[format('ARM_CLIENT_SECRET_{0}', github.event.inputs.environment)] }}
-      ARM_SUBSCRIPTION_ID: ${{ secrets[format('ARM_SUBSCRIPTION_ID_{0}', github.event.inputs.environment)] }}
-      ARM_TENANT_ID: ${{ secrets[format('ARM_TENANT_ID_{0}', github.event.inputs.environment)] }}
-
+      ARM_CLIENT_ID: ${{ secrets['ARM_CLIENT_ID_' + github.event.inputs.environment.toUpperCase()] }}
+      ARM_CLIENT_SECRET: ${{ secrets['ARM_CLIENT_SECRET_' + github.event.inputs.environment.toUpperCase()] }}
+      ARM_SUBSCRIPTION_ID: ${{ secrets['ARM_SUBSCRIPTION_ID_' + github.event.inputs.environment.toUpperCase()] }}
+      ARM_TENANT_ID: ${{ secrets['ARM_TENANT_ID_' + github.event.inputs.environment.toUpperCase()] }}
 
     steps:
       - name: Checkout repo
@@ -65,9 +65,9 @@ jobs:
       - name: Run Terraform
         run: |
           set -e
-          STACKS=("$STACK_NAME")
+          STACKS=($STACK_NAME)
           if [ "$STACK_NAME" == "all" ]; then
-            STACKS=("1_rg" "2_network" "3_storage")
+            STACKS=("1_rg" "2_network" "3_storage" "4_compute")
           fi
 
           for stack in "${STACKS[@]}"; do
