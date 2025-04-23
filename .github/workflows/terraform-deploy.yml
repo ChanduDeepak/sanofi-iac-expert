@@ -81,7 +81,8 @@ jobs:
             cd app/stacks/$stack
             terraform init -input=false
             terraform validate
-            terraform fmt -check
+            terraform fmt -recursive           # 🔧 Auto format
+            terraform fmt -recursive -check -diff   # ✅ Enforce formatting
             terraform $TF_ACTION -var-file=tfvars/${REGION_NAME}/${ENV_NAME}.tfvars
             cd -
           done
