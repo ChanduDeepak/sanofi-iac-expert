@@ -1,4 +1,4 @@
-name: Terraform Deploy
+name: Terraform Deploy (Dev/Prod)
 
 on:
   workflow_dispatch:
@@ -28,10 +28,9 @@ on:
           - 1_rg
           - 2_network
           - 3_storage
-          - 4_compute
           - all
       action:
-        description: 'Terraform action'
+        description: 'Terraform action to perform'
         required: true
         default: 'plan'
         type: choice
@@ -41,69 +40,48 @@ on:
 
 jobs:
   terraform:
-    name: Deploy to ${{ github.event.inputs.environment }} (${{ github.event.inputs.region }})
+    name: Deploy to ${{ github.event.inputs.environment }} - ${{ github.event.inputs.stack }}
     runs-on: ubuntu-latest
-
     env:
-      ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
-      ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
-      ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
-      ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
+      ENV_NAME: ${{ github.event.inputs.environment }}
+      REGION_NAME: ${{ github.event.inputs.region }}
+      STACK_NAME: ${{ github.event.inputs.stack }}
+      TF_ACTION: ${{ github.event.inputs.action }}
+      ARM_CLIENT_ID: ${{ secrets[format('ARM_CLIENT_ID_{0}', github.event.inputs.environment)] }}
+      ARM_CLIENT_SECRET: ${{ secrets[format('ARM_CLIENT_SECRET_{0}', github.event.inputs.environment)] }}
+      ARM_SUBSCRIPTION_ID: ${{ secrets[format('ARM_SUBSCRIPTION_ID_{0}', github.event.inputs.environment)] }}
+      ARM_TENANT_ID: ${{ secrets[format('ARM_TENANT_ID_{0}', github.event.inputs.environment)] }}
+
 
     steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v4
+      - name: Checkout repo
+        uses: actions/checkout@v3
 
-      - name: Set Variables
-        id: set-vars
-        run: |
-          echo "STACK=${{ github.event.inputs.stack }}" >> $GITHUB_ENV
-          echo "ENVIRONMENT=${{ github.event.inputs.environment }}" >> $GITHUB_ENV
-          echo "REGION=${{ github.event.inputs.region }}" >> $GITHUB_ENV
-          echo "ACTION=${{ github.event.inputs.action }}" >> $GITHUB_ENV
-
-      - name: Install Terraform CLI
-        uses: hashicorp/setup-terraform@v3
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v2
         with:
           terraform_version: 1.6.6
 
       - name: Run Terraform
         run: |
           set -e
-          
-          STACK_DIR="app/stacks/${STACK}"
-          VAR_FILE="tfvars/${REGION}/${ENVIRONMENT}.tfvars"
-
-          echo "📦 Stack:      ${STACK}"
-          echo "🌍 Environment: ${ENVIRONMENT}"
-          echo "📍 Region:     ${REGION}"
-          echo "🔧 Action:     ${ACTION}"
-          echo "📂 Directory:  ${STACK_DIR}"
-          echo "📄 Var file:   ${VAR_FILE}"
-
-          if [[ "${STACK}" == "all" ]]; then
-            for dir in app/stacks/*/; do
-              cd "$dir"
-              echo "🚀 Running in stack: $(basename $dir)"
-              terraform init -upgrade
-              terraform validate
-              if [[ "${ACTION}" == "plan" ]]; then
-                terraform plan -var-file="tfvars/${REGION}/${ENVIRONMENT}.tfvars"
-              elif [[ "${ACTION}" == "apply" ]]; then
-                terraform apply -auto-approve -var-file="tfvars/${REGION}/${ENVIRONMENT}.tfvars"
-              fi
-              cd - > /dev/null
-            done
-          else
-            cd "${STACK_DIR}"
-            terraform init -upgrade
-            terraform validate
-            if [[ "${ACTION}" == "plan" ]]; then
-              terraform plan -var-file="${VAR_FILE}"
-            elif [[ "${ACTION}" == "apply" ]]; then
-              terraform apply -auto-approve -var-file="${VAR_FILE}"
-            else
-              echo "❌ Unknown action: ${ACTION}"
-              exit 1
-            fi
+          STACKS=("$STACK_NAME")
+          if [ "$STACK_NAME" == "all" ]; then
+            STACKS=("1_rg" "2_network" "3_storage")
           fi
+
+          for stack in "${STACKS[@]}"; do
+            echo "📦 Stack:      $stack"
+            echo "🌍 Environment: $ENV_NAME"
+            echo "📍 Region:     $REGION_NAME"
+            echo "🔧 Action:     $TF_ACTION"
+            echo "📂 Directory:  app/stacks/$stack"
+            echo "📄 Var file:   tfvars/${REGION_NAME}/${ENV_NAME}.tfvars"
+
+            cd app/stacks/$stack
+            terraform init -input=false
+            terraform validate
+            terraform fmt -check
+            terraform $TF_ACTION -var-file=tfvars/${REGION_NAME}/${ENV_NAME}.tfvars
+            cd -
+          done
