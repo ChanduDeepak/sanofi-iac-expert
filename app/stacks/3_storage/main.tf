@@ -1,3 +1,6 @@
+provider "azurerm" {
+  features = {}
+}
 module "storage" {
   source = "../../modules/storage"
 
