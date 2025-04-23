@@ -1,19 +1,39 @@
 output "linux_vm_names" {
-  description = "Names of the Linux VMs"
-  value       = [for vm in azurerm_linux_virtual_machine.linux_vms : vm.name]
-}
-
-output "linux_vm_private_ips" {
-  description = "Private IPs of the Linux VMs"
-  value       = [for nic in azurerm_network_interface.linux_nics : nic.private_ip_address]
+  description = "The names of the created Linux VMs."
+  value       = module.linux_vms[*].vm_name
 }
 
 output "windows_vm_names" {
-  description = "Names of the Windows VMs"
-  value       = [for vm in azurerm_windows_virtual_machine.windows_vms : vm.name]
+  description = "The names of the created Windows VMs."
+  value       = [for vm in module.windows_vms : vm.vm_name]
 }
 
-output "windows_vm_private_ips" {
-  description = "Private IPs of the Windows VMs"
-  value       = [for vm in azurerm_network_interface.windows_nics : vm.private_ip_address]
+output "linux_vm_count" {
+  description = "The number of Linux VMs created."
+  value       = var.linux_vm_count
+}
+
+output "windows_vm_count" {
+  description = "The number of Windows VMs created."
+  value       = length(module.windows_vms)
+}
+
+output "linux_vm_size" {
+  description = "The size of the created Linux VMs."
+  value       = var.linux_vm_size
+}
+
+output "windows_vm_size" {
+  description = "The size of the created Windows VMs."
+  value       = [for vm in module.windows_vms : vm.vm_size]
+}
+
+output "resource_group_name" {
+  description = "The name of the resource group."
+  value       = var.resource_group_name
+}
+
+output "location" {
+  description = "The location of the VMs."
+  value       = var.location
 }
