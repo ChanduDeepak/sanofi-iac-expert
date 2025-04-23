@@ -1,15 +1,26 @@
-output "linux_vm_names" {
-  value = [for vm in azurerm_linux_virtual_machine.linux_vms : vm.name]
+output "vm_ids" {
+  value = (
+    var.vm_type == "linux" ?
+    azurerm_linux_virtual_machine.this[*].id :
+    values(azurerm_windows_virtual_machine.this)[*].id
+  )
+  description = "List of VM resource IDs"
 }
 
-output "windows_vm_names" {
-  value = [for vm in azurerm_windows_virtual_machine.windows_vms : vm.name]
+output "name" {
+  value = (
+    var.vm_type == "linux" ?
+    azurerm_linux_virtual_machine.this[*].name :
+    values(azurerm_windows_virtual_machine.this)[*].name
+  )
+  description = "List of VM names"
 }
 
-output "linux_vm_private_ips" {
-  value = [for vm in azurerm_linux_virtual_machine.linux_vms : vm.private_ip_address]
-}
-
-output "windows_vm_private_ips" {
-  value = [for vm in azurerm_windows_virtual_machine.windows_vms : vm.private_ip_address]
+output "private_ips" {
+  value = (
+    var.vm_type == "linux" ?
+    azurerm_network_interface.this[*].private_ip_address :
+    values(azurerm_network_interface.this)[*].private_ip_address
+  )
+  description = "List of private IPs for the VMs"
 }

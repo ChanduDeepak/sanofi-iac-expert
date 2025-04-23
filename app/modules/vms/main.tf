@@ -1,69 +1,44 @@
-data "azurerm_subnet" "selected" {
-  name                 = var.subnet_name
-  virtual_network_name = var.vnet_name
-  resource_group_name  = var.resource_group_name
-}
+resource "azurerm_linux_virtual_machine" "vm" {
+  count                 = var.vm_type == "linux" ? var.vm_count : 0
+  name                  = var.vm_names[count.index]
+  resource_group_name   = var.resource_group_name
+  location              = var.location
+  size                  = var.vm_size
+  admin_username        = var.admin_username
+  admin_password        = var.admin_password
+  disable_password_authentication = false
 
-resource "azurerm_network_interface" "vm_nic" {
-  for_each            = { for vm in var.vms : vm.name => vm if vm.os_type == "linux" || vm.os_type == "windows" }
-  name                = "${each.key}-nic"
-  location            = var.location
-  resource_group_name = var.resource_group_name
-
-  ip_configuration {
-    name                          = "ipconfig"
-    subnet_id                     = data.azurerm_subnet.selected.id
-    private_ip_address_allocation = "Dynamic"
-  }
-
-  tags = var.tags
-}
-
-resource "azurerm_linux_virtual_machine" "linux_vms" {
-  for_each            = { for vm in var.vms : vm.name => vm if vm.os_type == "linux" }
-  name                = each.key
-  location            = var.location
-  resource_group_name = var.resource_group_name
-  size                = each.value.vm_size
-  admin_username      = each.value.admin_username
-  disable_password_authentication = true
-
-  network_interface_ids = [azurerm_network_interface.vm_nic[each.key].id]
-
-  admin_ssh_key {
-    username   = each.value.admin_username
-    public_key = each.value.ssh_public_key
-  }
+  network_interface_ids = [] # To be updated if NIC is in scope
 
   os_disk {
     caching              = "ReadWrite"
     storage_account_type = "Standard_LRS"
+    name                 = "${var.vm_names[count.index]}-osdisk"
   }
 
   source_image_reference {
     publisher = "Canonical"
     offer     = "UbuntuServer"
-    sku       = "20_04-lts-gen2"
+    sku       = "20_04-lts"
     version   = "latest"
   }
-
-  tags = var.tags
 }
 
-resource "azurerm_windows_virtual_machine" "windows_vms" {
-  for_each            = { for vm in var.vms : vm.name => vm if vm.os_type == "windows" }
-  name                = each.key
-  location            = var.location
-  resource_group_name = var.resource_group_name
-  size                = each.value.vm_size
-  admin_username      = each.value.admin_username
-  admin_password      = each.value.admin_password
+resource "azurerm_windows_virtual_machine" "vm" {
+  for_each              = var.vm_type == "windows" ? toset([var.vm_name]) : []
+  name                  = each.key
+  resource_group_name   = var.resource_group_name
+  location              = var.location
+  size                  = var.vm_size
+  admin_username        = var.admin_username
+  admin_password        = var.admin_password
 
-  network_interface_ids = [azurerm_network_interface.vm_nic[each.key].id]
+  network_interface_ids = [] # To be updated if NIC is in scope
 
   os_disk {
     caching              = "ReadWrite"
     storage_account_type = "Standard_LRS"
+    name                 = "${each.key}-osdisk"
   }
 
   source_image_reference {
@@ -72,6 +47,4 @@ resource "azurerm_windows_virtual_machine" "windows_vms" {
     sku       = "2019-Datacenter"
     version   = "latest"
   }
-
-  tags = var.tags
 }
