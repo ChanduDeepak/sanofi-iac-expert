@@ -48,10 +48,10 @@ jobs:
       REGION_NAME: ${{ github.event.inputs.region }}
       STACK_NAME: ${{ github.event.inputs.stack }}
       TF_ACTION: ${{ github.event.inputs.action }}
-      ARM_CLIENT_ID: ${{ secrets['ARM_CLIENT_ID_' + github.event.inputs.environment.toUpperCase()] }}
-      ARM_CLIENT_SECRET: ${{ secrets['ARM_CLIENT_SECRET_' + github.event.inputs.environment.toUpperCase()] }}
-      ARM_SUBSCRIPTION_ID: ${{ secrets['ARM_SUBSCRIPTION_ID_' + github.event.inputs.environment.toUpperCase()] }}
-      ARM_TENANT_ID: ${{ secrets['ARM_TENANT_ID_' + github.event.inputs.environment.toUpperCase()] }}
+      ARM_CLIENT_ID: ${{ secrets[format('ARM_CLIENT_ID_{0}', github.event.inputs.environment)] }}
+      ARM_CLIENT_SECRET: ${{ secrets[format('ARM_CLIENT_SECRET_{0}', github.event.inputs.environment)] }}
+      ARM_SUBSCRIPTION_ID: ${{ secrets[format('ARM_SUBSCRIPTION_ID_{0}', github.event.inputs.environment)] }}
+      ARM_TENANT_ID: ${{ secrets[format('ARM_TENANT_ID_{0}', github.event.inputs.environment)] }}
 
     steps:
       - name: Checkout repo
