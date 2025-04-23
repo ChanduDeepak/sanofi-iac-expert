@@ -1,14 +1,23 @@
-module "virtual_machines" {
-  source = "../../modules/virtual_machine"
+# app/stacks/4_compute/main.tf
 
-  resource_group_name     = var.resource_group_name
-  location                = var.location
-  vnet_name               = var.vnet_name
-  subnet_name             = var.subnet_name
-  admin_username          = var.admin_username
-  admin_password          = var.admin_password
-  vm_count                = var.vm_count
-  vm_size                 = var.vm_size
-  vm_name_prefix          = var.vm_name_prefix
-  tags                    = var.tags
+module "linux_vms" {
+  source              = "../../modules/linux_vm"
+  count               = var.linux_vm_count
+  resource_group_name = var.resource_group_name
+  location            = var.location
+  vm_size             = var.vm_size
+  vm_name             = "${var.env}-linux-${count.index + 1}"
+  admin_username      = var.admin_username
+  admin_password      = var.admin_password
+}
+
+module "windows_vms" {
+  source              = "../../modules/windows_vm"
+  for_each            = var.windows_vms
+  resource_group_name = var.resource_group_name
+  location            = var.location
+  vm_size             = var.vm_size
+  vm_name             = each.value.vm_name
+  admin_username      = each.value.admin_username
+  admin_password      = each.value.admin_password
 }
