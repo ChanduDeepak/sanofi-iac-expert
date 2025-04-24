@@ -1,4 +1,4 @@
-module "linux_vms" {
+module "vms" {
   source              = "app/modules/vms"
   vm_type             = "linux"
   location            = var.location
@@ -11,7 +11,7 @@ module "linux_vms" {
   vm_size             = var.vm_size
 }
 
-module "windows_vms" {
+module "vms" {
   source              = "app/modules/vms"
   vm_type             = "windows"
   location            = var.location
