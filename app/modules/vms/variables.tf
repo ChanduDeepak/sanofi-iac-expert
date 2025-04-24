@@ -2,6 +2,11 @@ variable "location" {
   type = string
 }
 
+variable "vm_type" {
+  description = "Type of VM to create (linux, windows, or all)"
+  type        = string
+}
+
 variable "resource_group_name" {
   type = string
 }
