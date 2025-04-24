@@ -1,21 +1,21 @@
-vm_type                = "both" # or "linux" or "windows" if you want just one
-location               = "eastus2"
-resource_group_name    = "rg-someapp-dev"
-subnet_id              = "your-subnet-id"
-vm_size                = "Standard_D4s_v3"
+# General config
+location            = "eastus2"
+resource_group_name = "rg-dev"
+subnet_id           = "/subscriptions/xxx/resourceGroups/rg-dev/providers/Microsoft.Network/virtualNetworks/vnet-dev/subnets/default"
+vm_size             = "Standard_D4s_v3"
 
-# Linux VM values
-linux_vm_count         = 4
-linux_vm_names         = ["linux-vm-01", "linux-vm-02", "linux-vm-03", "linux-vm-04"]
-linux_admin_username   = "azureuser"
-linux_admin_password   = "P@ssw0rd123!"
+# Linux VM config (4 VMs using count)
+linux_vm_count        = 4
+linux_vm_names        = ["linux-vm01", "linux-vm02", "linux-vm03", "linux-vm04"]
+linux_admin_username  = "linuxadmin"
+linux_admin_password  = "P@ssw0rdLinux123"
 
-# Windows VM values
+# Windows VM config (4 VMs using for_each)
 windows_vm_map = {
-  winvm01 = "10.0.1.10"
-  winvm02 = "10.0.1.11"
-  winvm03 = "10.0.1.12"
-  winvm04 = "10.0.1.13"
+  "vm01" = { name = "win-vm01" }
+  "vm02" = { name = "win-vm02" }
+  "vm03" = { name = "win-vm03" }
+  "vm04" = { name = "win-vm04" }
 }
-windows_admin_username = "adminuser"
-windows_admin_password = "P@ssword!234"
+windows_admin_username = "winadmin"
+windows_admin_password = "P@ssw0rdWin123"
