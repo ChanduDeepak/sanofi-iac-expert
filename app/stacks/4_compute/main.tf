@@ -1,5 +1,5 @@
 module "vms" {
-  source              = "../modules/vms"
+  source              = "../app/modules/vms"
 
   vm_type             = var.vm_type
   location            = var.location
