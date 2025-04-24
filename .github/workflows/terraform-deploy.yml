@@ -1,5 +1,5 @@
 name: Terraform Deploy (Dev/Prod)
-
+run-name: Plan & Deploy Terraform configurations files
 on:
   workflow_dispatch:
     inputs:
