@@ -1,6 +1,6 @@
 module "vms" {
   source              = "../../modules/vms"
-
+  vm_type             = "all" # You can set to "all", "linux", or "windows" depending on your use case
   location            = var.location
   resource_group_name = var.resource_group_name
   subnet_id           = var.subnet_id
