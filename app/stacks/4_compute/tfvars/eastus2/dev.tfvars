@@ -1,5 +1,6 @@
 # General config
 location            = "eastus2"
+vm_type = "all"
 resource_group_name = "rg-dev"
 subnet_id           = "/subscriptions/xxx/resourceGroups/rg-dev/providers/Microsoft.Network/virtualNetworks/vnet-dev/subnets/default"
 vm_size             = "Standard_D4s_v3"
