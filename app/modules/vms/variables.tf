@@ -1,8 +1,3 @@
-variable "vm_type" {
-  description = "VM type: linux or windows"
-  type        = string
-}
-
 variable "location" {
   type = string
 }
