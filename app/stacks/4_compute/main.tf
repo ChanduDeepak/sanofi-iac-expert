@@ -1,6 +1,6 @@
 module "vms" {
   source              = "../../modules/vms"
-  vm_type             = var.vm_type
+
   location            = var.location
   resource_group_name = var.resource_group_name
   subnet_id           = var.subnet_id
