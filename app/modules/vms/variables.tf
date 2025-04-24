@@ -1,53 +1,57 @@
 variable "vm_type" {
+  description = "Type of VM: linux or windows"
   type        = string
-  description = "Type of VM - linux or windows"
-}
-
-variable "resource_group_name" {
-  type        = string
-  description = "Name of the resource group"
 }
 
 variable "location" {
-  type        = string
   description = "Azure region"
+  type        = string
 }
 
-# For Linux VMs (using count)
-variable "vm_count" {
-  type        = number
-  default     = 0
-  description = "Number of Linux VMs to create (used with count)"
+variable "resource_group_name" {
+  description = "Name of the resource group"
+  type        = string
 }
 
-variable "vm_names" {
-  type        = list(string)
-  default     = []
-  description = "List of VM names (for both linux and windows)"
+variable "subnet_id" {
+  description = "Subnet ID to attach the VMs"
+  type        = string
 }
-
-variable "vm_name" {
-  type        = list(string)
-  default     = []
-  description = "List of VM names (for both linux and windows)"
-}
-
-# For Windows VMs (using for_each)
-# If for_each is used, we just reuse the same variable vm_names but map it in parent
-# No special variable needed here
 
 variable "vm_size" {
+  description = "Size of the virtual machines"
   type        = string
-  description = "VM size"
+  default     = "Standard_D4s_v3"
 }
 
+# Linux VMs
+variable "linux_vm_count" {
+  description = "Number of Linux VMs"
+  type        = number
+  default     = 0
+}
+
+variable "linux_vm_names" {
+  description = "List of Linux VM names"
+  type        = list(string)
+  default     = []
+}
+
+# Windows VMs
+variable "windows_vm_map" {
+  description = "Map of Windows VM names to properties (can be empty strings if unused)"
+  type        = map(any)
+  default     = {}
+}
+
+# Common credentials
 variable "admin_username" {
+  description = "Admin username for all VMs"
   type        = string
-  description = "Admin username for the VM"
 }
 
 variable "admin_password" {
+  description = "Admin password for all VMs"
   type        = string
   sensitive   = true
-  description = "Admin password for the VM"
 }
