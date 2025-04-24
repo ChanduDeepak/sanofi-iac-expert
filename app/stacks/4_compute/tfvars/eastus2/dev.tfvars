@@ -1,5 +1,5 @@
 location              = "eastus2"
-resource_group_name   = "rg-dev-eastus2"
+resource_group_name   = "rg-sanofi-az-eus2-dev-001"
 subnet_id             = "/subscriptions/xxxx/resourceGroups/rg-dev-eastus2/providers/Microsoft.Network/virtualNetworks/vnet-dev-eastus2/subnets/snet-dev"
 
 # Linux VM configuration
