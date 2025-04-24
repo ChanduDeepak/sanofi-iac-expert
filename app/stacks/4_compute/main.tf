@@ -1,24 +1,24 @@
 module "linux_vms" {
-  source              = "../../modules/vms"
-  for_each            = toset([])
+  source              = "app/modules/vms"
   vm_type             = "linux"
-  vm_count            = var.linux_vm_count
-  vm_names            = var.linux_vm_names
-  vm_size             = var.linux_vm_size
-  admin_username      = var.linux_admin_username
-  admin_password      = var.linux_admin_password
-  resource_group_name = var.resource_group_name
   location            = var.location
+  resource_group_name = var.resource_group_name
+  subnet_id           = var.subnet_id
+  linux_vm_count      = var.linux_vm_count
+  linux_vm_names      = var.linux_vm_names
+  linux_admin_username = var.linux_admin_username
+  linux_admin_password = var.linux_admin_password
+  vm_size             = var.vm_size
 }
 
 module "windows_vms" {
-  source              = "../../modules/vms"
-  for_each            = var.windows_vm_map
+  source              = "app/modules/vms"
   vm_type             = "windows"
-  vm_name             = each.key
-  vm_size             = each.value.vm_size
-  admin_username      = each.value.admin_username
-  admin_password      = each.value.admin_password
-  resource_group_name = var.resource_group_name
   location            = var.location
+  resource_group_name = var.resource_group_name
+  subnet_id           = var.subnet_id
+  windows_vm_map      = var.windows_vm_map
+  windows_admin_username = var.windows_admin_username
+  windows_admin_password = var.windows_admin_password
+  vm_size             = var.vm_size
 }
