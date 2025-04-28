@@ -10,7 +10,7 @@ terraform {
 
   backend "azurerm" {
     resource_group_name  = "rg-tfstate"
-    storage_account_name = "yourtfstatestorage"
+    storage_account_name = "sanofitfstatestorage"
     container_name       = "tfstate"
     key                  = "env.tfstate" # will be overridden per stack if needed
   }
