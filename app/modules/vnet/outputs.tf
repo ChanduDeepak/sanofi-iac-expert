@@ -7,5 +7,5 @@ output "vnet_name" {
 }
 
 output "subnet_ids" {
-  value = { for k, subnet in azurerm_subnet.vnet-sanofi : k => subnet.id }
+  value = { for k, subnet in azurerm_subnet.subnet1 : k => subnet.id }
 }

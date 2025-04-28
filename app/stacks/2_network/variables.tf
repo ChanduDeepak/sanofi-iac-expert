@@ -21,7 +21,7 @@ variable "address_space" {
 variable "subnets" {
   type = list(object({
     name           = string
-    address_prefix = string
+    address_prefixes = string
   }))
   description = "List of subnets"
 }
