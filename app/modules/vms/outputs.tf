@@ -17,3 +17,12 @@ output "windows_vm_private_ips" {
   description = "Private IP addresses of Windows VMs"
   value       = var.vm_type == "windows" ? values(azurerm_network_interface.windows)[*].private_ip_address : []
 }
+
+output "linux_vm_names" {
+  value = try([for vm in azurerm_linux_virtual_machine.this : vm.name], [])
+}
+
+output "windows_vm_names" {
+  value = try([for vm in azurerm_windows_virtual_machine.this : vm.name], [])
+}
+
