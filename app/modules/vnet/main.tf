@@ -11,7 +11,7 @@ resource "azurerm_subnet" "subnet1" {
 
   name                 = each.value.name
   resource_group_name  = var.resource_group_name
-  virtual_network_name = azurerm_virtual_network.this.name
+  virtual_network_name = azurerm_virtual_network.vnet-sanofi.name
   address_prefixes     = each.value.address_prefixes
 }
 
