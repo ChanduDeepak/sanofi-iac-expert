@@ -1,3 +1,7 @@
+provider "azurerm" {
+  features {}
+}
+
 module "virtual_network" {
   source              = "../../modules/vnet"
   resource_group_name = var.resource_group_name
