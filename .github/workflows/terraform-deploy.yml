@@ -70,18 +70,18 @@ jobs:
           fi
 
           for stack in "${STACKS[@]}"; do
-            echo "📦 Stack:      $stack"
-            echo "🌍 Environment: $ENV_NAME"
-            echo "📍 Region:     $REGION_NAME"
-            echo "🔧 Action:     $TF_ACTION"
-            echo "📂 Directory:  app/stacks/$stack"
-            echo "📄 Var file:   tfvars/${REGION_NAME}/${ENV_NAME}.tfvars"
+            echo " Stack:      $stack"
+            echo " Environment: $ENV_NAME"
+            echo " Region:     $REGION_NAME"
+            echo " Action:     $TF_ACTION"
+            echo " Directory:  app/stacks/$stack"
+            echo " Var file:   tfvars/${REGION_NAME}/${ENV_NAME}.tfvars"
 
             cd app/stacks/$stack
             terraform init -input=false
             terraform validate
-            terraform fmt -recursive           # 🔧 Auto format
-            terraform fmt -recursive -check -diff   # ✅ Enforce formatting
+            terraform fmt -recursive           #  Auto format
+            terraform fmt -recursive -check -diff   #  Enforce formatting
             terraform $TF_ACTION -var-file=tfvars/${REGION_NAME}/${ENV_NAME}.tfvars
             cd -
           done
